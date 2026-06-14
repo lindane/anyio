@@ -209,6 +209,16 @@ class BlockingPortal:
         await self.stop()
         return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
 
+    @property
+    def is_running(self) -> bool:
+        """
+        ``True`` if the portal is currently running and accepting calls,
+        ``False`` after :meth:`stop` has been called.
+
+        .. versionadded:: 4.13
+        """
+        return self._event_loop_thread_id is not None
+
     def _check_running(self) -> None:
         if self._event_loop_thread_id is None:
             raise RuntimeError("This portal is not running")

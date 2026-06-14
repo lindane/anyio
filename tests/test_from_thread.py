@@ -457,6 +457,14 @@ class TestBlockingPortal:
 
         exc.match("No such backend: foo")
 
+    def test_is_running(
+        self, anyio_backend_name: str, anyio_backend_options: dict[str, Any]
+    ) -> None:
+        with start_blocking_portal(anyio_backend_name, anyio_backend_options) as portal:
+            assert portal.is_running is True
+
+        assert portal.is_running is False
+
     def test_call_stopped_portal(
         self, anyio_backend_name: str, anyio_backend_options: dict[str, Any]
     ) -> None:
