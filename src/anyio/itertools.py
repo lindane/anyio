@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 __all__ = (
+    "async_length",
     "accumulate",
     "batched",
     "Chain",
@@ -142,6 +143,31 @@ class _TeeAsyncIterator(AsyncIterator[T]):
 
 async def _operator_add(x: T, y: T) -> T:
     return operator.add(x, y)
+
+
+async def async_length(iterable: Iterable[object] | AsyncIterable[object]) -> int:
+    if isinstance(iterable, AsyncIterable):
+        count = 0
+        async_iterator = iterable.__aiter__()
+        while True:
+            await checkpoint_if_cancelled()
+            try:
+                await anext(async_iterator)
+            except StopAsyncIteration:
+                break
+
+            count += 1
+
+        return count
+
+    if hasattr(iterable, "__len__"):
+        return len(iterable)  # type: ignore[arg-type]
+
+    count = 0
+    for _ in iterable:
+        count += 1
+
+    return count
 
 
 async def accumulate(

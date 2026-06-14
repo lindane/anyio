@@ -13,6 +13,7 @@ import pytest
 
 from anyio import CancelScope, create_task_group, get_cancelled_exc_class
 from anyio.itertools import (
+    async_length,
     accumulate,
     batched,
     chain,
@@ -1008,3 +1009,27 @@ class TestZipLongest:
     async def test_checkpoints_empty_results(self) -> None:
         for iterator in (zip_longest([], ()), zip_longest()):
             await assert_cancelled_on_first_next(iterator)
+
+
+class TestAsyncLength:
+    async def test_list(self) -> None:
+        assert await async_length([1, 2, 3, 4, 5]) == 5
+
+    async def test_empty_list(self) -> None:
+        assert await async_length([]) == 0
+
+    async def test_async_generator(self) -> None:
+        async def gen() -> AsyncGenerator[int, None]:
+            for i in range(7):
+                yield i
+
+        assert await async_length(gen()) == 7
+
+    async def test_async_iterator(self) -> None:
+        assert await async_length(aiter_from([10, 20, 30])) == 3
+
+    async def test_empty_async_iterator(self) -> None:
+        assert await async_length(aiter_from([])) == 0
+
+    async def test_iterable_without_len(self) -> None:
+        assert await async_length(x for x in range(4)) == 4
