@@ -51,6 +51,10 @@ class BufferedByteReceiveStream(ByteReceiveStream):
     def extra_attributes(self) -> Mapping[Any, Callable[[], Any]]:
         return self.receive_stream.extra_attributes
 
+    def buffered_size(self) -> int:
+        """Return the number of bytes currently held in the internal buffer."""
+        return len(self._buffer)
+
     def feed_data(self, data: Iterable[SupportsIndex], /) -> None:
         """
         Append data directly into the buffer.

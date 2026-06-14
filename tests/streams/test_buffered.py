@@ -109,6 +109,39 @@ async def test_buffered_connectable() -> None:
         assert await stream.receive_exactly(2) == b"cd"
 
 
+async def test_buffered_size() -> None:
+    send_stream, receive_stream = create_memory_object_stream[bytes](1)
+    buffered_stream = BufferedByteReceiveStream(receive_stream)
+
+    # Buffer starts empty
+    assert buffered_stream.buffered_size() == 0
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    # feed_data increases buffered_size
+    buffered_stream.feed_data(b"hello")
+    assert buffered_stream.buffered_size() == 5
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    buffered_stream.feed_data(b"world!")
+    assert buffered_stream.buffered_size() == 11
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    # receive() consumes part of the buffer and buffered_size decreases
+    chunk = await buffered_stream.receive(4)
+    assert chunk == b"hell"
+    assert buffered_stream.buffered_size() == 7
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    # receive() consumes the rest
+    chunk = await buffered_stream.receive(100)
+    assert chunk == b"oworld!"
+    assert buffered_stream.buffered_size() == 0
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    send_stream.close()
+    receive_stream.close()
+
+
 async def test_feed_data() -> None:
     send_stream, receive_stream = create_memory_object_stream[bytes](1)
     buffered_stream = BufferedByteStream(
