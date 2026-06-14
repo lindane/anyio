@@ -8,7 +8,7 @@ from _pytest.logging import LogCaptureFixture
 from _pytest.pytester import Pytester
 
 from anyio import get_available_backends
-from anyio.pytest_plugin import FreePortFactory
+from anyio.pytest_plugin import FreePortFactory, normalize_backend_option
 
 pytestmark = [
     pytest.mark.filterwarnings(
@@ -793,3 +793,15 @@ def test_func_as_parametrize_param_name(testdir: Pytester) -> None:
 
     result = testdir.runpytest(*pytest_args)
     result.assert_outcomes(passed=len(get_available_backends()))
+
+
+class TestNormalizeBackendOption:
+    def test_str_returns_name_and_empty_dict(self) -> None:
+        assert normalize_backend_option("asyncio") == ("asyncio", {})
+
+    def test_tuple_with_none_options_returns_empty_dict(self) -> None:
+        assert normalize_backend_option(("asyncio", None)) == ("asyncio", {})
+
+    def test_invalid_type_raises_typeerror(self) -> None:
+        with pytest.raises(TypeError, match="anyio_backend must be either"):
+            normalize_backend_option(42)

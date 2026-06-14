@@ -42,6 +42,18 @@ def extract_backend_and_options(backend: object) -> tuple[str, dict[str, Any]]:
     raise TypeError("anyio_backend must be either a string or tuple of (string, dict)")
 
 
+def normalize_backend_option(backend: object) -> tuple[str, dict[str, Any]]:
+    if (
+        isinstance(backend, tuple)
+        and len(backend) == 2
+        and isinstance(backend[0], str)
+        and backend[1] is None
+    ):
+        backend = (backend[0], {})
+
+    return extract_backend_and_options(backend)
+
+
 @contextmanager
 def get_runner(
     backend_name: str, backend_options: dict[str, Any]
