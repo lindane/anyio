@@ -79,3 +79,15 @@ class TypedAttributeProvider:
                 return default
 
         return getter()
+
+    @final
+    def has_extra(self, attribute: T_Attr) -> bool:
+        """
+        Return ``True`` if the given typed extra attribute is found in this
+        provider, ``False`` otherwise.
+
+        :param attribute: the attribute (member of a :class:`~TypedAttributeSet`) to
+            look for
+
+        """
+        return attribute in self.extra_attributes
