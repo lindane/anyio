@@ -2,6 +2,7 @@ from __future__ import annotations
 
 __all__ = (
     "accumulate",
+    "async_length",
     "batched",
     "Chain",
     "combinations",
@@ -167,6 +168,29 @@ async def accumulate(
     async for element in iterator:
         total = await function(total, element)
         yield total
+
+
+async def async_length(iterable: Iterable[T] | AsyncIterable[T]) -> int:
+    if isinstance(iterable, AsyncIterable):
+        count = 0
+        iterator = iterable.__aiter__()
+        while True:
+            await checkpoint_if_cancelled()
+            try:
+                await anext(iterator)
+            except StopAsyncIteration:
+                return count
+
+            count += 1
+
+    if hasattr(iterable, "__len__"):
+        return len(cast(Any, iterable))
+
+    count = 0
+    for _ in iterable:
+        count += 1
+
+    return count
 
 
 async def batched(

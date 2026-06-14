@@ -14,6 +14,7 @@ import pytest
 from anyio import CancelScope, create_task_group, get_cancelled_exc_class
 from anyio.itertools import (
     accumulate,
+    async_length,
     batched,
     chain,
     combinations,
@@ -146,6 +147,38 @@ class TestAccumulate:
             accumulate(aiter_from([]), initial=1),
         ):
             await assert_cancelled_on_first_next(iterator)
+
+
+class TestAsyncLength:
+    async def test_list(self) -> None:
+        assert await async_length([1, 2, 3, 4, 5]) == 5
+
+    async def test_empty_list(self) -> None:
+        assert await async_length([]) == 0
+
+    async def test_async_generator(self) -> None:
+        async def gen() -> AsyncIterator[int]:
+            yield 1
+            yield 2
+            yield 3
+
+        assert await async_length(gen()) == 3
+
+    async def test_empty_async_generator(self) -> None:
+        async def gen() -> AsyncIterator[int]:
+            return
+            yield  # type: ignore[unreachable]
+
+        assert await async_length(gen()) == 0
+
+    async def test_iterator_without_len(self) -> None:
+        assert await async_length(iter([1, 2, 3])) == 3
+
+    async def test_string(self) -> None:
+        assert await async_length("hello") == 5
+
+    async def test_async_iterable(self) -> None:
+        assert await async_length(aiter_from([10, 20, 30])) == 3
 
 
 class TestBatched:
