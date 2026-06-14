@@ -109,6 +109,45 @@ async def test_buffered_connectable() -> None:
         assert await stream.receive_exactly(2) == b"cd"
 
 
+async def test_buffered_size_after_feed_data() -> None:
+    send_stream, receive_stream = create_memory_object_stream[bytes](1)
+    buffered_stream = BufferedByteReceiveStream(receive_stream)
+    assert buffered_stream.buffered_size() == 0
+
+    buffered_stream.feed_data(b"abcd")
+    assert buffered_stream.buffered_size() == 4
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    buffered_stream.feed_data(b"efgh")
+    assert buffered_stream.buffered_size() == 8
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    send_stream.close()
+    receive_stream.close()
+
+
+async def test_buffered_size_after_receive() -> None:
+    send_stream, receive_stream = create_memory_object_stream[bytes](1)
+    buffered_stream = BufferedByteReceiveStream(receive_stream)
+    buffered_stream.feed_data(b"abcdefgh")
+    assert buffered_stream.buffered_size() == 8
+
+    await buffered_stream.receive(3)
+    assert buffered_stream.buffered_size() == 5
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    await buffered_stream.receive(2)
+    assert buffered_stream.buffered_size() == 3
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    await buffered_stream.receive(3)
+    assert buffered_stream.buffered_size() == 0
+    assert buffered_stream.buffered_size() == len(buffered_stream.buffer)
+
+    send_stream.close()
+    receive_stream.close()
+
+
 async def test_feed_data() -> None:
     send_stream, receive_stream = create_memory_object_stream[bytes](1)
     buffered_stream = BufferedByteStream(

@@ -47,6 +47,10 @@ class BufferedByteReceiveStream(ByteReceiveStream):
         """The bytes currently in the buffer."""
         return bytes(self._buffer)
 
+    def buffered_size(self) -> int:
+        """Return the number of bytes currently in the buffer."""
+        return len(self._buffer)
+
     @property
     def extra_attributes(self) -> Mapping[Any, Callable[[], Any]]:
         return self.receive_stream.extra_attributes
