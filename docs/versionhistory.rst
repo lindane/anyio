@@ -16,6 +16,8 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
 - Added the ``create_task()`` task group method for easier asyncio migration (returns a
   ``TaskHandle``)
   (`#1098 <https://github.com/agronholm/anyio/pull/1098>`_)
+- Added the ``is_running`` property to ``BlockingPortal`` to allow external threads
+  to check if the portal is still active
 - Changed ``TaskGroup.start_soon()`` to return a ``TaskHandle``
 - Added an option for ``TaskGroup.start()`` to return a ``TaskHandle`` (which then
   contains the start value in the ``start_value`` property)

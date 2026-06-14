@@ -217,6 +217,17 @@ class BlockingPortal:
                 "This method cannot be called from the event loop thread"
             )
 
+    @property
+    def is_running(self) -> bool:
+        """
+        ``True`` if the portal is currently running (i.e. :meth:`stop` has not
+        been called yet), ``False`` otherwise.
+
+        .. versionadded:: 4.12
+
+        """
+        return self._event_loop_thread_id is not None
+
     async def sleep_until_stopped(self) -> None:
         """Sleep until :meth:`stop` is called."""
         await self._stop_event.wait()

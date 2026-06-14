@@ -467,6 +467,14 @@ class TestBlockingPortal:
             "This portal is not running"
         )
 
+    def test_is_running(
+        self, anyio_backend_name: str, anyio_backend_options: dict[str, Any]
+    ) -> None:
+        with start_blocking_portal(anyio_backend_name, anyio_backend_options) as portal:
+            assert portal.is_running
+
+        assert not portal.is_running
+
     def test_start_task_soon(
         self, anyio_backend_name: str, anyio_backend_options: dict[str, Any]
     ) -> None:
