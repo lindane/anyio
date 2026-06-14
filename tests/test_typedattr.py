@@ -25,3 +25,21 @@ def test_typedattr_keyerror() -> None:
     """
     with pytest.raises(KeyError, match="^'foo'$"):
         DummyAttributeProvider().extra(str)
+
+
+def test_has_extra_present() -> None:
+    """has_extra() returns True when the attribute key exists in extra_attributes."""
+    provider = DummyAttributeProvider()
+    assert provider.has_extra(str) is True
+
+
+def test_has_extra_absent() -> None:
+    """has_extra() returns False when the attribute key is not in extra_attributes."""
+    provider = DummyAttributeProvider()
+    assert provider.has_extra(int) is False
+
+
+def test_has_extra_empty_provider() -> None:
+    """has_extra() returns False for a bare provider with no extra attributes."""
+    provider = TypedAttributeProvider()
+    assert provider.has_extra(str) is False

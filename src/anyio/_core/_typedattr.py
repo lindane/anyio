@@ -49,6 +49,17 @@ class TypedAttributeProvider:
         """
         return {}
 
+    @final
+    def has_extra(self, attribute: object) -> bool:
+        """
+        Return whether the given typed extra attribute is present in the mapping.
+
+        :param attribute: the attribute (member of a :class:`~TypedAttributeSet`) to
+            check for
+
+        """
+        return attribute in self.extra_attributes
+
     @overload
     def extra(self, attribute: T_Attr) -> T_Attr: ...
 
